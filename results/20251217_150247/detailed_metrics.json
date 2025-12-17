@@ -1,0 +1,35 @@
+{
+  "CNN1D": {
+    "test_metrics": {
+      "accuracy": 0.7673267326732673,
+      "precision": 0.6666666666666666,
+      "recall": 0.8536585365853658,
+      "specificity": 0.7083333333333334,
+      "f1": 0.7486631016042781,
+      "auc": 0.8049796747967479
+    },
+    "cv_metrics": {}
+  },
+  "LSTM": {
+    "test_metrics": {
+      "accuracy": 0.594059405940594,
+      "precision": 0.0,
+      "recall": 0.0,
+      "specificity": 1.0,
+      "f1": 0.0,
+      "auc": 0.4190548780487805
+    },
+    "cv_metrics": {}
+  },
+  "CNN_LSTM": {
+    "test_metrics": {
+      "accuracy": 0.5445544554455446,
+      "precision": 0.47023809523809523,
+      "recall": 0.9634146341463414,
+      "specificity": 0.25833333333333336,
+      "f1": 0.632,
+      "auc": 0.7765243902439024
+    },
+    "cv_metrics": {}
+  }
+}
