@@ -24,5 +24,8 @@ seaborn>=0.11.0
 tqdm>=4.62.0
 joblib>=1.1.0
 
+# Hyperparameter optimization
+optuna>=3.0.0
+
 # Optional: XGBoost for enhanced ML
 # xgboost>=1.5.0
