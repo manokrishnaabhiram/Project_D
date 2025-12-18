@@ -67,8 +67,7 @@ ML_PARAM_SPACE = {
     'RandomForest': {
         'n_estimators': (50, 300),
         'max_depth': (5, 50),
-        'min_samples_split': (2, 20),
-        'min_samples_leaf': (1, 10)
+        'min_samples_split': (2, 20)
     },
     'GradientBoosting': {
         'n_estimators': (50, 300),
