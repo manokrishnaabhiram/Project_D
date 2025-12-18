@@ -51,3 +51,63 @@ EARLY_STOPPING_PATIENCE = 10
 # Device for PyTorch
 import torch
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Optuna hyperparameter tuning
+OPTUNA_N_TRIALS = 50  # Number of trials for hyperparameter optimization
+OPTUNA_TIMEOUT = None  # Timeout in seconds (None for no timeout)
+OPTUNA_N_JOBS = 1  # Number of parallel jobs (-1 for all CPUs)
+
+# Hyperparameter search spaces for ML models
+ML_PARAM_SPACE = {
+    'SVM': {
+        'C': (0.1, 100.0, 'log'),
+        'gamma': (0.001, 1.0, 'log'),
+        'kernel': ['rbf', 'linear', 'poly']
+    },
+    'RandomForest': {
+        'n_estimators': (50, 300),
+        'max_depth': (5, 50),
+        'min_samples_split': (2, 20),
+        'min_samples_leaf': (1, 10)
+    },
+    'GradientBoosting': {
+        'n_estimators': (50, 300),
+        'learning_rate': (0.01, 0.3, 'log'),
+        'max_depth': (3, 10),
+        'subsample': (0.6, 1.0)
+    },
+    'XGBoost': {
+        'n_estimators': (50, 300),
+        'learning_rate': (0.01, 0.3, 'log'),
+        'max_depth': (3, 10),
+        'subsample': (0.6, 1.0),
+        'colsample_bytree': (0.6, 1.0)
+    }
+}
+
+# Hyperparameter search spaces for DL models
+DL_PARAM_SPACE = {
+    'CNN1D': {
+        'dropout': (0.3, 0.7),
+        'learning_rate': (0.0001, 0.01, 'log'),
+        'batch_size': [16, 32, 64]
+    },
+    'LSTM': {
+        'hidden_size': [64, 128, 256],
+        'num_layers': [1, 2, 3],
+        'dropout': (0.3, 0.7),
+        'learning_rate': (0.0001, 0.01, 'log'),
+        'batch_size': [16, 32, 64]
+    },
+    'CNN_LSTM': {
+        'lstm_hidden': [64, 128, 256],
+        'lstm_layers': [1, 2, 3],
+        'dropout': (0.3, 0.7),
+        'learning_rate': (0.0001, 0.01, 'log'),
+        'batch_size': [16, 32, 64]
+    }
+}
+
+# Ensemble configuration
+ENSEMBLE_VOTING_TYPE = 'soft'  # 'hard' or 'soft'
+ENSEMBLE_TOP_N_MODELS = 3  # Number of top models to combine in ensemble
