@@ -48,6 +48,17 @@ EPOCHS = 50
 LEARNING_RATE = 0.001
 EARLY_STOPPING_PATIENCE = 10
 
+# Hyperparameter Tuning (Optuna)
+OPTUNA_N_TRIALS = 50  # Number of trials per model
+OPTUNA_TIMEOUT = 1800  # Timeout in seconds (30 min per model)
+OPTUNA_STUDY_DIR = RESULTS_DIR / "optuna_studies"
+OPTUNA_STUDY_DIR.mkdir(exist_ok=True)
+
+# Ensemble settings
+ENSEMBLE_TOP_K = 3  # Number of top models to include in ensemble
+ENSEMBLE_METHOD = 'stacking'  # 'voting' or 'stacking'
+ENSEMBLE_VOTING_TYPE = 'soft'  # 'soft' or 'hard' (for voting ensemble)
+
 # Device for PyTorch
 import torch
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

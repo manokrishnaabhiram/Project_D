@@ -465,12 +465,35 @@ class DLModelWrapper:
         self.is_fitted = True
 
 
-def get_all_dl_models(input_length: int = SEGMENT_SAMPLES) -> Dict[str, DLModelWrapper]:
-    """Get dictionary of all DL models"""
+def get_all_dl_models(input_length: int = SEGMENT_SAMPLES,
+                      tuned_params: Optional[Dict[str, Dict]] = None) -> Dict[str, DLModelWrapper]:
+    """
+    Get dictionary of all DL models
+    
+    Args:
+        input_length: Length of input ECG segments
+        tuned_params: Optional dictionary of tuned hyperparameters per model
+                     e.g., {'CNN1D': {'dropout': 0.3}, ...}
+    """
+    params = tuned_params or {}
+    
+    # Extract model-specific kwargs (architecture params)
+    cnn_kwargs = {k: v for k, v in params.get('CNN1D', {}).items() 
+                  if k in ['dropout']}
+    lstm_kwargs = {k: v for k, v in params.get('LSTM', {}).items() 
+                   if k in ['hidden_size', 'num_layers', 'dropout', 'bidirectional']}
+    cnn_lstm_kwargs = {k: v for k, v in params.get('CNN_LSTM', {}).items() 
+                       if k in ['lstm_hidden', 'lstm_layers', 'dropout']}
+    
+    # Handle cnn_filters for CNN_LSTM
+    if 'cnn_filters_base' in params.get('CNN_LSTM', {}):
+        base = params['CNN_LSTM']['cnn_filters_base']
+        cnn_lstm_kwargs['cnn_filters'] = [base, base * 2, base * 4]
+    
     return {
-        'CNN1D': DLModelWrapper(CNN1D, 'CNN1D', input_length=input_length),
-        'LSTM': DLModelWrapper(LSTMModel, 'LSTM'),
-        'CNN_LSTM': DLModelWrapper(CNNLSTM, 'CNN_LSTM', input_length=input_length)
+        'CNN1D': DLModelWrapper(CNN1D, 'CNN1D', input_length=input_length, **cnn_kwargs),
+        'LSTM': DLModelWrapper(LSTMModel, 'LSTM', **lstm_kwargs),
+        'CNN_LSTM': DLModelWrapper(CNNLSTM, 'CNN_LSTM', input_length=input_length, **cnn_lstm_kwargs)
     }
 
 
@@ -486,7 +509,8 @@ def train_and_evaluate_all_dl_models(X_train: np.ndarray, y_train: np.ndarray,
                                       X_val: np.ndarray, y_val: np.ndarray,
                                       X_test: np.ndarray, y_test: np.ndarray,
                                       epochs: int = EPOCHS,
-                                      verbose: bool = True) -> Dict[str, Dict]:
+                                      verbose: bool = True,
+                                      tuned_params: Optional[Dict[str, Dict]] = None) -> Dict[str, Dict]:
     """
     Train and evaluate all DL models
     
@@ -499,11 +523,12 @@ def train_and_evaluate_all_dl_models(X_train: np.ndarray, y_train: np.ndarray,
         y_test: Test labels
         epochs: Number of training epochs
         verbose: Whether to show progress
+        tuned_params: Optional dictionary of tuned hyperparameters per model
     
     Returns:
         Dictionary of results for each model
     """
-    models = get_all_dl_models(input_length=X_train.shape[1])
+    models = get_all_dl_models(input_length=X_train.shape[1], tuned_params=tuned_params)
     results = {}
     
     # Compute class weights
@@ -515,9 +540,19 @@ def train_and_evaluate_all_dl_models(X_train: np.ndarray, y_train: np.ndarray,
             print(f"Training {name}...")
             print(f"{'='*50}")
         
+        # Get training hyperparameters from tuned_params if available
+        train_kwargs = {}
+        if tuned_params and name in tuned_params:
+            params = tuned_params[name]
+            if 'learning_rate' in params:
+                train_kwargs['learning_rate'] = params['learning_rate']
+            if 'batch_size' in params:
+                train_kwargs['batch_size'] = params['batch_size']
+        
         # Train model
         model.fit(X_train, y_train, X_val, y_val, 
-                  epochs=epochs, class_weights=class_weights, verbose=verbose)
+                  epochs=epochs, class_weights=class_weights, verbose=verbose,
+                  **train_kwargs)
         
         # Evaluate on test set
         test_metrics = model.evaluate(X_test, y_test)

@@ -195,14 +195,22 @@ class LogisticRegressionModel(MLModelBase):
         )
 
 
-def get_all_ml_models() -> Dict[str, MLModelBase]:
-    """Get dictionary of all ML models"""
+def get_all_ml_models(tuned_params: Optional[Dict[str, Dict]] = None) -> Dict[str, MLModelBase]:
+    """
+    Get dictionary of all ML models
+    
+    Args:
+        tuned_params: Optional dictionary of tuned hyperparameters per model
+                     e.g., {'SVM': {'C': 10, 'kernel': 'rbf'}, ...}
+    """
+    params = tuned_params or {}
+    
     return {
-        'SVM': SVMModel(),
-        'RandomForest': RandomForestModel(),
-        'GradientBoosting': GradientBoostingModel(),
-        'XGBoost': XGBoostModel(),
-        'LogisticRegression': LogisticRegressionModel()
+        'SVM': SVMModel(**params.get('SVM', {})),
+        'RandomForest': RandomForestModel(**params.get('RandomForest', {})),
+        'GradientBoosting': GradientBoostingModel(**params.get('GradientBoosting', {})),
+        'XGBoost': XGBoostModel(**params.get('XGBoost', {})),
+        'LogisticRegression': LogisticRegressionModel(**params.get('LogisticRegression', {}))
     }
 
 
@@ -271,7 +279,8 @@ def cross_validate_model(model: MLModelBase, X: np.ndarray, y: np.ndarray,
 def train_and_evaluate_all_models(X_train: np.ndarray, y_train: np.ndarray,
                                   X_test: np.ndarray, y_test: np.ndarray,
                                   groups_train: Optional[np.ndarray] = None,
-                                  verbose: bool = True) -> Dict[str, Dict]:
+                                  verbose: bool = True,
+                                  tuned_params: Optional[Dict[str, Dict]] = None) -> Dict[str, Dict]:
     """
     Train and evaluate all ML models
     
@@ -282,11 +291,12 @@ def train_and_evaluate_all_models(X_train: np.ndarray, y_train: np.ndarray,
         y_test: Test labels
         groups_train: Group labels for CV
         verbose: Whether to print progress
+        tuned_params: Optional dictionary of tuned hyperparameters per model
     
     Returns:
         Dictionary of results for each model
     """
-    models = get_all_ml_models()
+    models = get_all_ml_models(tuned_params)
     results = {}
     
     for name, model in models.items():
